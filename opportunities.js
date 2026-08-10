@@ -468,7 +468,7 @@ function debouncedFilterTable() { clearTimeout(searchTimeout); searchTimeout = s
 
 
 /* ==========================================
-   Date Picker Functions (محدثة لنظام القوائم المنسدلة)
+   Date Picker Functions (محدثة لنظام القوائم المنسدلة والسنوات من الحالية حتى 7 سنوات قادمة)
    ========================================== */
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 let activeInputTarget = null;
@@ -522,13 +522,16 @@ function initDatePicker() {
 function populateYearSelect() {
     const yearSelect = document.getElementById('calYearSelect');
     if (!yearSelect) return;
+
     yearSelect.innerHTML = '';
     const currentYear = new Date().getFullYear();
-    // إتاحة سنوات ماضية ومستقبلية لتغطية الفرص البيعية المتنوعة
-    for (let y = currentYear - 5; y <= currentYear + 15; y++) {
+    
+    // السنة الحالية + 7 سنوات قادمة (المجموع 8 سنوات)
+    for (let i = 0; i <= 7; i++) {
+        const yr = currentYear + i;
         const opt = document.createElement('option');
-        opt.value = y;
-        opt.textContent = y;
+        opt.value = yr;
+        opt.textContent = yr;
         yearSelect.appendChild(opt);
     }
 }
