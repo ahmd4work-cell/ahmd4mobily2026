@@ -1,0 +1,136 @@
+/* ==========================================
+   reminders.css - تنسيقات صفحة التذكيرات
+   ========================================== */
+
+/* -- تنسيقات الشريط العلوي المطلوبة -- */
+.navbar { 
+    background: #A5A5A5; 
+    display: flex; 
+    align-items: center; 
+    padding: 0 20px; 
+    margin: 0 10px 5px 10px; /* المسافة العلوية صفر */
+    border-radius: 0 0 6px 6px; /* حواف دائرية خفيفة من الأسفل فقط */
+    height: 40px; 
+    flex-shrink: 0;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); 
+    border: 1px solid #A5A5A5;
+}
+
+.navbar a { 
+    font-family: 'Calibri', sans-serif; 
+    color: white; 
+    text-decoration: none; 
+    padding: 0 15px; 
+    font-weight: bold; /* خط عريض */
+    font-size: 12px; /* حجم الخط 12 */
+    height: 28px; 
+    line-height: 28px; 
+    display: inline-block; 
+    transition: 0.3s; 
+    opacity: 0.85; 
+}
+
+.navbar a:hover { opacity: 1; }
+.navbar a.active { 
+    background-color: #a78bfa; 
+    color: #0f172a; 
+    border-radius: 6px; 
+    opacity: 1; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+}
+
+/* -- تنسيقات المذكرات الأساسية -- */
+.reminders-container {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* شبكة 4 بالعرض في 3 بالطول = 12 مذكرة */
+.reminders-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 20px;
+    min-height: calc(100vh - 140px);
+}
+
+.reminder-card {
+    background: #ffffff;
+    border: 2px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.card-title-input {
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: #0f172a;
+    background: transparent;
+}
+
+.card-date-input {
+    font-family: 'Cairo', sans-serif;
+    font-size: 11px;
+    padding: 4px 6px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    outline: none;
+    background: #f8fafc;
+    cursor: pointer;
+}
+
+.card-line {
+    height: 2px;
+    background: #e2e8f0;
+    margin-bottom: 10px;
+    border-radius: 2px;
+}
+
+.card-textarea {
+    flex-grow: 1;
+    width: 100%;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    color: #334155;
+    background: transparent;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+
+/* ألوان التنبيهات الذكية حسب التاريخ */
+.reminder-card.status-yellow {
+    background-color: #fef9c3 !important;
+    border-color: #facc15 !important;
+}
+
+.reminder-card.status-green {
+    background-color: #dcfce7 !important;
+    border-color: #4ade80 !important;
+}
+
+.reminder-card.status-red {
+    background-color: #fee2e2 !important;
+    border-color: #f87171 !important;
+}
