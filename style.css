@@ -67,8 +67,8 @@ tbody tr.main-row:nth-child(4n+1) { background-color: #fafafa; }
 
 /* ألوان حالات الزيارة المحدثة */
 .status-green { background-color: #22c55e !important; color: #fff !important; font-weight: 800 !important; border-radius: 4px !important; }
-.status-yellow-ffc { background-color: #FFC000 !important; color: #000 !important; font-weight: 800 !important; border-radius: 4px !important; }
-.status-yellow-fff { background-color: #FFFF00 !important; color: #000 !important; font-weight: 800 !important; border-radius: 4px !important; }
+.status-yellow-ffc { background-color: #FF9900 !important; color: #000 !important; font-weight: 800 !important; border-radius: 4px !important; }
+.status-yellow-fff { background-color: #FFCC00 !important; color: #000 !important; font-weight: 800 !important; border-radius: 4px !important; }
 .status-red-ff0 { background-color: #FF0000 !important; color: #fff !important; font-weight: 800 !important; border-radius: 4px !important; }
 .status-red-c00 { background-color: #C00000 !important; color: #fff !important; font-weight: 800 !important; border-radius: 4px !important; }
 
