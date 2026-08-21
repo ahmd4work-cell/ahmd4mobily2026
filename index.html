@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة القيادة - مبيعات</title>
+    
+    <!-- خطوط وأيقونات خارجية -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- استدعاء ملف التصميم الخارجي -->
+    <link rel="stylesheet" href="main.css">
+    
+    <!-- مكتبة Chart.js للرسوم البيانية -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- شريط التنقل العلوي -->
+<nav class="navbar">
+    <a href="index.html" class="active">الرئيسية</a>
+    <a href="visits.html">الزيارات</a>
+    <a href="opportunities.html">الفرص البيعية</a>
+    <a href="customers.html">العملاء</a>
+    <a href="sales.html">المبيعات</a>
+    <a href="reminders.html">التذكيرات</a>
+</nav>
+
+<!-- شريط معلومات الموظف -->
+<div class="employee-info-bar">
+    <div class="info-content">
+        <div class="info-item">الموظف: <span>محمد المنصور</span></div>
+        <div class="info-item">الرقم: <span>ASG-2026</span></div>
+        <div class="info-item">المشروع: <span>تطبيق الإدارة</span></div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="dashboard-grid">
+        <!-- القسم الأيمن (جدول السجل) -->
+        <div class="right-section">
+            <div class="content-box" style="height: 100%;">
+                <div class="box-header">
+                    <h3>📅 سجل الأهداف والزيارات والفرص</h3>
+                    <div class="header-actions">
+                        <!-- مؤشر حالة المزامنة السحابية -->
+                        <span id="syncStatus" style="font-size: 11px; margin-left: 10px; font-weight: 700;"></span>
+                        
+                        <!-- زر القلم لتعديل أهداف المبيعات الشهرية -->
+                        <button type="button" id="editTargetBtn" class="toggle-blur-btn" title="تعديل أهداف المبيعات">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 20h9"></path>
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                            </svg>
+                        </button>
+                        <!-- زر العين لإخفاء/إظهار الأرقام -->
+                        <button type="button" id="toggleBlurBtn" class="toggle-blur-btn" title="إخفاء / إظهار الأرقام">
+                            <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="table-wrapper-dashboard">
+                    <table class="yearly-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 20%;">الشهر</th>
+                                <th>هدف</th>
+                                <th>مكتمل</th>
+                                <th class="thick-border">معلق</th>
+                                <th>الزيارات</th>
+                                <th>الفرص</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthsBody"></tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td>الإجمالي</td>
+                                <td id="totTarget">180,000</td>
+                                <td id="totCompleted" style="color: var(--light-green); font-weight: 700;">0</td>
+                                <td id="totPending" class="thick-border" style="color: #f59e0b; font-weight: 700;">0</td>
+                                <td id="totVisits">0</td>
+                                <td id="totOpps">0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- القسم الأيسر -->
+        <div class="left-section">
+            <!-- الفلاتر -->
+            <div class="filters-grid">
+                <div class="filter-card"><label>السنة</label><select id="filterYear" class="filter-input"><option value="2026">2026</option><option value="all">الكل</option></select></div>
+                <div class="filter-card"><label>الشهر</label><select id="filterMonth" class="filter-input"><option value="all">الكل</option></select></div>
+                <div class="filter-card"><label>المنطقة</label><select id="filterRegion" class="filter-input"><option value="all">الكل</option></select></div>
+                <div class="filter-card"><label>المشرف</label><select id="filterSupervisor" class="filter-input"><option value="all">الكل</option></select></div>
+                <div class="filter-card"><label>المندوب</label><select id="filterSalesman" class="filter-input"><option value="all">الكل</option></select></div>
+            </div>
+            
+            <!-- كروت الإحصائيات -->
+            <div class="stats-cards">
+                <div class="stat-card bg-primary"><div class="label-text">الهدف السنوي</div><div class="value-text" id="yearlyTargetCardVal">180,000</div></div>
+                <div class="stat-card bg-light-green"><div class="label-text">المبيعات</div><div class="value-text" id="salesValue">0</div></div>
+                <div class="stat-card bg-warning"><div class="label-text">المعلق</div><div class="value-text" id="pendingValue">0</div></div>
+                <div class="stat-card bg-gray" style="flex:0.6"><div class="label-text">الزيارات</div><div class="value-text" id="visitCount">0</div></div>
+                <div class="stat-card bg-gray" style="flex:0.6"><div class="label-text">الفرص</div><div class="value-text" id="oppCount">0</div></div>
+            </div>
+
+            <!-- تحليل الأداء الإجمالي -->
+            <div class="content-box">
+                <h3>📈 تحليل الأداء الإجمالي</h3>
+                <div class="charts-row">
+                    <div class="chart-item-wrapper">
+                        <div class="chart-container-reduced">
+                            <canvas id="achievedChart"></canvas>
+                            <div class="chart-percentage" id="achievedPct">0%</div>
+                        </div>
+                        <div class="chart-label">مكتمل</div>
+                    </div>
+                    <div class="chart-item-wrapper" style="flex: 0.6;">
+                        <div class="gauge-container-reduced">
+                            <canvas id="gaugeChart"></canvas>
+                            <div class="gauge-value" id="gaugePct">0%</div>
+                        </div>
+                        <div class="chart-label" style="margin-top: 10px;">مؤشر الإنجاز</div>
+                    </div>
+                    <div class="chart-item-wrapper">
+                        <div class="chart-container-reduced">
+                            <canvas id="pendingChart"></canvas>
+                            <div class="chart-percentage" id="pendingPct">0%</div>
+                        </div>
+                        <div class="chart-label">المعلق</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تحليل الأرباع السنوية -->
+            <div class="content-box">
+                <h3 id="quarterTitleHeader">تحليل مبيعات الأرباع السنوية (هدف الربع: 45k)</h3>
+                <div class="quarters-row">
+                    <div class="quarter-item">
+                        <div class="quarter-chart-container"><canvas id="q1Chart"></canvas></div>
+                        <div class="quarter-pct" id="q1Pct">0%</div>
+                        <div class="quarter-label">الربع الأول<br><small>(يناير - مارس)</small></div>
+                    </div>
+                    <div class="quarter-item">
+                        <div class="quarter-chart-container"><canvas id="q2Chart"></canvas></div>
+                        <div class="quarter-pct" id="q2Pct">0%</div>
+                        <div class="quarter-label">الربع الثاني<br><small>(أبريل - يونيو)</small></div>
+                    </div>
+                    <div class="quarter-item">
+                        <div class="quarter-chart-container"><canvas id="q3Chart"></canvas></div>
+                        <div class="quarter-pct" id="q3Pct">0%</div>
+                        <div class="quarter-label">الربع الثالث<br><small>(يوليو - سبتمبر)</small></div>
+                    </div>
+                    <div class="quarter-item">
+                        <div class="quarter-chart-container"><canvas id="q4Chart"></canvas></div>
+                        <div class="quarter-pct" id="q4Pct">0%</div>
+                        <div class="quarter-label">الربع الرابع<br><small>(أكتوبر - ديسمبر)</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- رسمة أداء فريق المبيعات -->
+    <div class="content-box staff-performance-section">
+        <h3>👥 أداء فريق المبيعات (30 موظفاً)</h3>
+        <div style="flex-grow: 1; position: relative; height: 220px;">
+            <canvas id="staffChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- استدعاء ملف الجافاسكربت الخارجي كـ Module -->
+<script type="module" src="main.js"></script>
+
+</body>
+</html>
