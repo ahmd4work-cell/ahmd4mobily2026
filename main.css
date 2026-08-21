@@ -1,0 +1,27 @@
+/* -------------------------------------
+   دوائر التقسيم الشهري أسفل الجدول
+--------------------------------------- */
+.monthly-breakdown-charts {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--border-color);
+}
+.monthly-chart-wrapper {
+    text-align: center;
+    flex: 1;
+}
+.monthly-chart-container {
+    position: relative;
+    height: 150px;
+    width: 150px;
+    margin: 0 auto;
+}
+.monthly-chart-label {
+    margin-top: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary-green);
+}
