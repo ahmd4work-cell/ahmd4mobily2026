@@ -220,7 +220,19 @@ function fullTableRender() {
 
     tbody.innerHTML = '';
     
-    visitsDataArray.sort((a, b) => parseDate(b.visitDate) - parseDate(a.visitDate));
+visitsDataArray.sort((a, b) => {
+        let dateDiff = parseDate(b.visitDate) - parseDate(a.visitDate);
+        
+        // إذا كان تاريخ الزيارة متطابقاً (مثلاً تمت إضافتهم في نفس اليوم)
+        if (dateDiff === 0) {
+            // نقوم بالترتيب حسب الأحدث بناءً على الأرقام الموجودة في معرف الزيارة (ID)
+            const idA = a.id ? parseInt(a.id.replace(/\D/g, '')) || 0 : 0;
+            const idB = b.id ? parseInt(b.id.replace(/\D/g, '')) || 0 : 0;
+            return idB - idA; // وضع الأحدث في الأعلى
+        }
+        
+        return dateDiff;
+    });
     
     let currentMonthGroup = "";
     visitsDataArray.forEach((v) => {
