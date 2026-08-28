@@ -666,8 +666,14 @@ function toggleAllCheckboxes(source) { document.querySelectorAll('.select-check'
 function toggleDropdown(e, btn) { e.stopPropagation(); const menu = btn.nextElementSibling; document.querySelectorAll('.dropdown-menu').forEach(m => { if(m !== menu) m.classList.remove('show'); }); menu.classList.toggle('show'); }
 
 async function handleBulkAction(action) {
+    // الإضافة الجديدة: إخفاء القائمة المنسدلة فوراً بعد الضغط على أي خيار
+    document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
+
     const selected = document.querySelectorAll('.select-check:checked');
-    if (selected.length === 0) { Swal.fire({icon: 'info', text: 'يرجى تحديد صف واحد على الأقل', confirmButtonText: 'حسناً', confirmButtonColor: '#3b82f6'}); return; }
+    if (selected.length === 0) { 
+        Swal.fire({icon: 'info', text: 'يرجى تحديد صف واحد على الأقل', confirmButtonText: 'حسناً', confirmButtonColor: '#3b82f6'}); 
+        return; 
+    }
     
     if (action === 'حذف') {
         const result = await Swal.fire({ title: 'تأكيد الحذف؟', text: "سيتم حذف الزيارات المحددة نهائياً!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#94a3b8', confirmButtonText: 'نعم، احذف', cancelButtonText: 'إلغاء' });
@@ -679,7 +685,6 @@ async function handleBulkAction(action) {
                     const row = chk.closest('tr');
                     if (row && row.id) {
                         batch.delete(doc(db, "visits", row.id));
-                        // حذف النسخة المحلية الاحتياطية للملاحظات أيضاً عند حذف الزيارة
                         localStorage.removeItem('visit_notes_local_' + row.id);
                     }
                 }
