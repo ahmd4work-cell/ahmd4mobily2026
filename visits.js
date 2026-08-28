@@ -925,4 +925,11 @@ Object.assign(window, {
     openDatePicker, closeDatePicker, setTodayDate 
 });
 
-document.addEventListener('DOMContentLoaded', () => { listenToVisits(); });
+document.addEventListener('DOMContentLoaded', () => { 
+    listenToVisits(); 
+    
+    // الإضافة الجديدة: إغلاق القوائم المنسدلة عند النقر في أي مكان فارغ بالصفحة
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+    });
+});
