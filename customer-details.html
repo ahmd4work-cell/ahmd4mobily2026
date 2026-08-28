@@ -42,6 +42,14 @@
         </div>
       </div>
       <div class="header-actions">
+        <div class="header-actions">
+  <!-- الزر الجديد -->
+  <button class="btn btn-outline" onclick="openEditModal()"><i class="fas fa-edit"></i> تعديل بيانات العميل</button>
+  <!-- الأزرار القديمة -->
+  <button class="btn btn-success" onclick="openNoteModal()"><i class="fas fa-cart-plus"></i> طلب جديد</button>
+  <button class="btn btn-warning" onclick="openNoteModal()"><i class="fas fa-car-side"></i> زيارة جديدة</button>
+  <button class="btn btn-primary" onclick="openNoteModal()"><i class="fas fa-plus"></i> إضافة نشاط / ملاحظة</button>
+</div>
         <button class="btn btn-success" onclick="openNoteModal()"><i class="fas fa-cart-plus"></i> طلب جديد</button>
         <button class="btn btn-warning" onclick="openNoteModal()"><i class="fas fa-car-side"></i> زيارة جديدة</button>
         <button class="btn btn-primary" onclick="openNoteModal()"><i class="fas fa-plus"></i> إضافة نشاط / ملاحظة</button>
@@ -153,6 +161,64 @@
           <span id="fileName" class="file-name-display">لم يتم اختيار ملف</span>
         </div>
       </div>
+      <!-- النافذة المنبثقة: تعديل بيانات العميل -->
+  <div id="editCustomerModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3><i class="fas fa-user-edit"></i> تعديل بيانات المنشأة</h3>
+        <button class="close-btn" onclick="closeEditModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        
+        <div style="grid-column: span 2;">
+          <label class="form-label">اسم الشركة / العميل</label>
+          <input type="text" id="editComp" class="form-control" />
+        </div>
+
+        <div>
+          <label class="form-label">المدينة / الحي</label>
+          <input type="text" id="editCity" class="form-control" />
+        </div>
+        <div>
+          <label class="form-label">العنوان التفصيلي</label>
+          <input type="text" id="editAddress" class="form-control" />
+        </div>
+
+        <div>
+          <label class="form-label">السجل التجاري (الرئيسي)</label>
+          <input type="text" id="editCr1" class="form-control" />
+        </div>
+        <div>
+          <label class="form-label">السجل التجاري (الفرعي)</label>
+          <input type="text" id="editCr2" class="form-control" />
+        </div>
+
+        <div>
+          <label class="form-label">تصنيف العميل</label>
+          <select id="editClass" class="form-control">
+            <option value="صغير">صغير</option>
+            <option value="متوسط">متوسط</option>
+            <option value="هام">هام</option>
+            <option value="حكومي">حكومي</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">حالة العميل</label>
+          <select id="editStatus" class="form-control">
+            <option value="جديد">جديد</option>
+            <option value="نشط">نشط</option>
+            <option value="متابعة">متابعة</option>
+            <option value="مغلق">مغلق</option>
+          </select>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="saveCustomerEdits()">حفظ التعديلات</button>
+        <button class="btn btn-outline" onclick="closeEditModal()">إلغاء</button>
+      </div>
+    </div>
+  </div>
       <div class="modal-footer">
         <button class="btn btn-primary" onclick="saveActivity()">حفظ النشاط</button>
         <button class="btn btn-outline" onclick="closeNoteModal()">إلغاء</button>
