@@ -52,7 +52,7 @@
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(3, 1fr);
     gap: 20px;
-    min-height: calc(100vh - 140px);
+    min-height: calc(100vh - 145px);
 }
 
 .reminder-card {
