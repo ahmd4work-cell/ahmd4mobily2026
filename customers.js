@@ -1,0 +1,447 @@
+// ==========================================
+// customers.js - إدارة العملاء سحابياً ومحلياً (حماية مزدوجة)
+// ==========================================
+import { db } from './firebase-config.js';
+import { collection, getDocs, setDoc, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const tableBody = document.getElementById('tableBody');
+const logsBody = document.getElementById('activityList'); 
+const totalCustomers = document.getElementById('stat-total'); 
+const monthCustomers = document.getElementById('stat-month'); 
+const todayCustomers = document.getElementById('stat-today'); 
+const searchInput = document.getElementById('searchInput');
+
+let searchTimeout;
+let customersDataList = [];
+let logsDataList = [];
+
+// حفظ النسخة الاحتياطية محلياً لمنع ضياع البيانات (الذاكرة المزدوجة)
+function saveLocalBackup() {
+    try {
+        localStorage.setItem('crm_customers', JSON.stringify(customersDataList));
+        localStorage.setItem('crm_activity_logs', JSON.stringify(logsDataList));
+    } catch (e) {
+        console.error("Local Storage Error: ", e);
+    }
+}
+
+// جلب البيانات محلياً أولاً (استجابة فورية) ثم المزامنة مع Firestore
+async function loadSavedData() {
+    const localCust = localStorage.getItem('crm_customers');
+    const localLogs = localStorage.getItem('crm_activity_logs');
+    if (localCust) {
+        try { customersDataList = JSON.parse(localCust); } catch(e){}
+    }
+    if (localLogs) {
+        try { logsDataList = JSON.parse(localLogs); } catch(e){}
+    }
+
+    updateStats(customersDataList);
+    renderCustomers(customersDataList);
+    renderLogs(logsDataList);
+
+    // جلب أحدث البيانات المباشرة من Firestore
+    try {
+        const querySnapshot = await getDocs(collection(db, "customers"));
+        const freshCustomers = [];
+        querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            data.code = docSnap.id || data.code;
+            freshCustomers.push(data);
+        });
+        
+        freshCustomers.sort((a, b) => (b.code || '').localeCompare(a.code || ''));
+        customersDataList = freshCustomers;
+
+        const logsSnapshot = await getDocs(collection(db, "activity_logs"));
+        const freshLogs = [];
+        logsSnapshot.forEach((docSnap) => {
+            freshLogs.push(docSnap.data());
+        });
+        
+        freshLogs.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        logsDataList = freshLogs;
+
+        saveLocalBackup();
+        updateStats(customersDataList);
+        renderCustomers(customersDataList);
+        renderLogs(logsDataList);
+
+        if (searchInput) {
+            searchInput.addEventListener('input', debouncedFilterTable);
+        }
+    } catch (error) {
+        console.error("Error loading data from Cloud: ", error);
+    }
+}
+
+function normalizeText(v) { return String(v || '').toLowerCase().trim(); }
+function escapeHTML(str) { return String(str || '').replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag])); }
+
+function badgeClass(status) {
+    const s = normalizeText(status);
+    if (s.includes('جديد') || s.includes('مفتوح')) return 'status-active';
+    if (s.includes('نشط') || s.includes('مكتمل') || s.includes('تم')) return 'status-active';
+    if (s.includes('متابعة')) return 'status-med';
+    if (s.includes('مغلق') || s.includes('ملغي')) return 'status-inactive';
+    return 'status-small';
+}
+
+function classBadgeColor(classification) {
+    const c = normalizeText(classification);
+    if (c.includes('حكومي')) return 'status-gov';
+    if (c.includes('هام')) return 'status-important';
+    if (c.includes('متوسط')) return 'status-med';
+    if (c.includes('صغير')) return 'status-small';
+    return 'status-small';
+}
+
+function safe(value, fallback = '-') { return escapeHTML(value && String(value).trim() ? String(value).trim() : fallback); }
+
+function getDisplayManager(v) { return safe(v.delegatePriority && v.delegateName ? v.delegateName : v.mgr); }
+function getDisplayMobile(v) { return safe(v.delegatePriority && v.delegateMob ? v.delegateMob : v.mob); }
+function getDisplayEmail(v) { return safe(v.delegatePriority && v.delegateEmail ? v.delegateEmail : v.email); }
+
+function getFullDateString() {
+    const d = new Date();
+    const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    return `${days[d.getDay()]} ${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function renderCustomers(list) {
+    if (!tableBody) return;
+    tableBody.innerHTML = '';
+    if (!list.length) {
+        // تم تغيير colspan إلى 13 ليستوعب العمود الجديد
+        tableBody.innerHTML = `<tr><td colspan="13" style="text-align:center;padding:28px;color:#6b7280;">لا توجد بيانات لعرضها</td></tr>`;
+        return;
+    }
+    list.forEach((v) => {
+        const classification = safe(v.classification || v.source || 'غير محدد');
+        const tr = document.createElement('tr');
+        tr.className = 'main-row';
+        tr.innerHTML = `
+            <td><input type="checkbox" class="select-check" data-code="${v.code}"></td>
+            <td><a href="#" onclick="event.preventDefault(); window.location.href='customer-details.html?code=${v.code}'" class="code-link">${safe(v.code, '00001')}</a></td>
+            <td><strong>${safe(v.comp)}</strong></td>
+            <td>${safe(v.address || v.city)}</td>
+            <td>${getDisplayManager(v)}</td>
+            <td>
+                <div class="phone-cell-container">
+                ${getDisplayMobile(v)}
+                <a href="https://wa.me/${getDisplayMobile(v).replace(/\D/g,'')}" target="_blank" class="whatsapp-icon-btn" title="مراسلة واتساب" onclick="event.stopPropagation()"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </td>
+            <td>${getDisplayEmail(v)}</td>
+            <!-- عرض السجل الرئيسي -->
+            <td>${safe(v.cr1 || v.cr, '-')}</td>
+            <td>${safe(v.creationDate || v.date)}</td>
+            <td><span class="${classBadgeColor(classification)}" style="padding: 2px 8px; border-radius: 4px;">${classification}</span></td>
+            <td><div class="notes-preview" onclick="window.openNoteModal('${v.code}'); event.stopPropagation()">${safe(v.notesText || v.lastNote || 'اضغط لإضافة ملاحظة')}</div></td>
+            <td><span class="${badgeClass(v.status)}" style="padding: 2px 8px; border-radius: 4px;">${safe(v.status, 'جديد')}</span></td>
+            <td>${safe(v.owner)}</td>
+        `;
+        tableBody.appendChild(tr);
+    });
+}
+
+function renderLogs(list) {
+    if (!logsBody) return;
+    logsBody.innerHTML = '';
+    if (!list.length) {
+        logsBody.innerHTML = `<div style="text-align:center;padding:28px;color:#6b7280;">لا يوجد سجل نشاط بعد</div>`;
+        return;
+    }
+    list.slice(0, 20).forEach(log => {
+        logsBody.innerHTML += `
+            <div class="log-entry">
+                <span class="log-badge-user"><i class="fas fa-user"></i> ${safe(log.user || 'المستخدم')}</span>
+                <span class="log-divider">|</span>
+                <span class="log-timestamp"><i class="far fa-clock"></i> ${safe(log.date)}</span>
+                <span class="log-divider">|</span>
+                <span class="log-action">${safe(log.action)}</span>
+            </div>
+        `;
+    });
+}
+
+function updateStats(list) {
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const thisYear = now.getFullYear();
+    const today = now.toISOString().slice(0, 10);
+
+    if(totalCustomers) totalCustomers.textContent = list.length;
+    if(monthCustomers) monthCustomers.textContent = list.filter(v => {
+        const dStr = v.creationDate || v.date || '';
+        if(dStr.includes('/')) {
+            const parts = dStr.split('/');
+            return parseInt(parts[1])-1 === thisMonth && parseInt(parts[2]) === thisYear;
+        }
+        const d = new Date(dStr);
+        return !isNaN(d) && d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+    }).length;
+    
+    if(todayCustomers) todayCustomers.textContent = list.filter(v => {
+        const d = String(v.creationDate || v.date || '');
+        return d.includes(today) || d.includes(`${now.getDate()}`) || d.includes(`${now.getMonth() + 1}`);
+    }).length;
+}
+
+function debouncedFilterTable() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        const q = normalizeText(searchInput.value);
+        const filtered = customersDataList.filter(v => {
+            // إضافة السجل للبحث لكي يعمل عند البحث برقم السجل
+            const haystack = [
+                v.code, v.comp, v.address, v.city, v.mgr, v.delegateName,
+                v.mob, v.delegateMob, v.email, v.delegateEmail, v.cr1, v.cr, v.status,
+                v.owner, v.classification, v.notesText, v.lastNote
+            ].map(normalizeText).join(' ');
+            return haystack.includes(q);
+        });
+        renderCustomers(filtered);
+    }, 300);
+}
+
+function openAddCustomerModal() {
+    const modal = document.getElementById('addCustomerModal');
+    if (modal) modal.style.display = 'flex';
+    let nextNum = 1;
+    if (customersDataList.length > 0) {
+        const codes = customersDataList.map(c => {
+            const match = (c.code || '').match(/\d+/);
+            return match ? parseInt(match[0], 10) : 0;
+        });
+        nextNum = Math.max(...codes) + 1;
+    }
+    const code = 'CUST-' + String(nextNum).padStart(5, '0');
+    const addCodeInput = document.getElementById('addCode');
+    if (addCodeInput) addCodeInput.value = code;
+    
+    const d = new Date();
+    const todayStr = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+    const addDateInput = document.getElementById('addDate');
+    if (addDateInput) addDateInput.value = todayStr;
+    
+    ['addComp', 'addCity', 'addAddress', 'addMainCR', 'addSubCR', 'addManager', 'addMob', 'addEmail', 'addCreator'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+}
+
+function closeAddCustomerModal() {
+    const modal = document.getElementById('addCustomerModal');
+    if (modal) modal.style.display = 'none';
+}
+
+async function saveNewCustomer() {
+    const compEl = document.getElementById('addComp');
+    const comp = compEl ? compEl.value : '';
+    if(!comp.trim()) {
+        if (typeof Swal !== 'undefined') Swal.fire('تنبيه', 'يرجى إدخال اسم الشركة', 'warning');
+        return;
+    }
+
+    const codeVal = document.getElementById('addCode').value;
+    const newCust = {
+        code: codeVal,
+        date: document.getElementById('addDate').value,
+        creationDate: document.getElementById('addDate').value,
+        comp: comp,
+        city: document.getElementById('addCity').value,
+        address: document.getElementById('addAddress').value,
+        cr1: document.getElementById('addMainCR').value,
+        cr2: document.getElementById('addSubCR').value,
+        mgr: document.getElementById('addManager').value,
+        mob: document.getElementById('addMob').value,
+        email: document.getElementById('addEmail').value,
+        owner: document.getElementById('addCreator').value,
+        status: 'جديد',
+        classification: 'صغير',
+        notesText: '',
+        managers: [], orders: [], visits: [], opportunities: [], sales: [], attachments: [], notesHistory: []
+    };
+
+    try {
+        customersDataList.unshift(newCust);
+        const creator = document.getElementById('addCreator').value || 'المستخدم';
+        const logEntry = {
+            user: creator,
+            date: getFullDateString(),
+            action: `إنشاء عميل جديد برقم ${newCust.code} ( ${newCust.comp} )`,
+            timestamp: Date.now()
+        };
+        logsDataList.unshift(logEntry);
+
+        saveLocalBackup();
+
+        await setDoc(doc(db, "customers", newCust.code), newCust);
+        await setDoc(doc(db, "activity_logs", Date.now().toString()), logEntry);
+
+        closeAddCustomerModal();
+        updateStats(customersDataList);
+        renderCustomers(customersDataList);
+        renderLogs(logsDataList);
+
+        if (typeof Swal !== 'undefined') Swal.fire('نجاح', 'تم إضافة العميل بنجاح', 'success');
+    } catch (error) {
+        console.error("Error adding document: ", error);
+        if (typeof Swal !== 'undefined') Swal.fire('خطأ', 'حدث خطأ أثناء حفظ البيانات بالسحابة', 'error');
+    }
+}
+
+// ==========================================
+// إدارة الملاحظات السحابية والمحلية الموحدة
+// ==========================================
+let currentNoteCode = null;
+
+function openNoteModal(code) {
+    currentNoteCode = code;
+    const modal = document.getElementById('noteModal');
+    if (modal) modal.style.display = 'flex';
+    
+    const customer = customersDataList.find(c => c.code === code);
+    const txtArea = document.getElementById('modalTextArea');
+    if (txtArea) txtArea.value = '';
+    
+    const historyLog = document.getElementById('historyLog');
+    if (historyLog) {
+        if (customer && customer.notesHistory && customer.notesHistory.length) {
+            historyLog.innerHTML = customer.notesHistory.map(n => `
+                <div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #cbd5e1; font-size:11px;">
+                    <strong style="color:#2563eb;">${escapeHTML(n.date)}</strong>: ${escapeHTML(n.text)}
+                </div>
+            `).join('');
+        } else {
+            historyLog.innerHTML = '<div style="color:#64748b; font-size:11px; text-align:center;">لا يوجد سجل ملاحظات سابق.</div>';
+        }
+    }
+}
+
+function closeNote() {
+    const modal = document.getElementById('noteModal');
+    if (modal) modal.style.display = 'none';
+    currentNoteCode = null;
+}
+
+async function saveNote() {
+    if (!currentNoteCode) return;
+    const txtArea = document.getElementById('modalTextArea');
+    const text = txtArea ? txtArea.value.trim() : '';
+    if (!text) { closeNote(); return; }
+
+    const customerIndex = customersDataList.findIndex(c => c.code === currentNoteCode);
+    if (customerIndex === -1) return;
+    
+    const customer = customersDataList[customerIndex];
+    const d = new Date();
+    const dateStr = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+    
+    if (!customer.notesHistory) customer.notesHistory = [];
+    customer.notesHistory.unshift({ date: dateStr, text: text });
+    customer.notesText = text;
+    
+    try {
+        saveLocalBackup();
+        await updateDoc(doc(db, "customers", currentNoteCode), {
+            notesHistory: customer.notesHistory,
+            notesText: customer.notesText
+        });
+        
+        closeNote();
+        renderCustomers(customersDataList);
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'تم حفظ الملاحظة بنجاح', showConfirmButton: false, timer: 1500 });
+        }
+    } catch (error) {
+        console.error("Error updating note: ", error);
+        if (typeof Swal !== 'undefined') Swal.fire('خطأ', 'حدث خطأ أثناء حفظ الملاحظة بالسحابة', 'error');
+    }
+}
+
+function toggleDropdown(event, el) {
+    event.stopPropagation();
+    const menu = el.nextElementSibling;
+    document.querySelectorAll('.dropdown-menu').forEach(m => { if(m !== menu) m.classList.remove('show'); });
+    if (menu) menu.classList.toggle('show');
+}
+
+function toggleAllCheckboxes(source) {
+    const checkboxes = document.querySelectorAll('.select-check');
+    checkboxes.forEach(cb => cb.checked = source.checked);
+}
+
+async function handleBulkAction(action) {
+    const selectedCheckboxes = Array.from(document.querySelectorAll('.select-check:checked'));
+    if (!selectedCheckboxes.length) {
+        if (typeof Swal !== 'undefined') Swal.fire('تنبيه', 'يرجى تحديد عميل واحد على الأقل', 'info');
+        return;
+    }
+    
+    if (action === 'حذف') {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'هل أنت متأكد؟', text: "لن تتمكن من التراجع عن هذا الإجراء!", icon: 'warning',
+                showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#cbd5e1',
+                confirmButtonText: 'نعم، احذف', cancelButtonText: 'إلغاء'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        for (let cb of selectedCheckboxes) {
+                            const code = cb.getAttribute('data-code');
+                            await deleteDoc(doc(db, "customers", code));
+                            customersDataList = customersDataList.filter(c => c.code !== code);
+                        }
+                        saveLocalBackup();
+                        renderCustomers(customersDataList);
+                        updateStats(customersDataList);
+                        Swal.fire('تم الحذف!', 'تم حذف العملاء المحددين بنجاح.', 'success');
+                    } catch (error) {
+                        console.error("Error deleting documents: ", error);
+                        Swal.fire('خطأ', 'فشل في حذف بعض أو كل العملاء', 'error');
+                    }
+                }
+            });
+        }
+    } else {
+        if (typeof Swal !== 'undefined') Swal.fire('معلومة', `إجراء ${action} غير متاح في هذه النسخة حالياً.`, 'info');
+    }
+}
+
+function toggleLogExpansion() {
+    const section = document.getElementById('activityLogSection');
+    const icon = document.querySelector('#toggleExpandBtn i');
+    if(!section || !icon) return;
+    if(section.classList.contains('expanded')) {
+        section.classList.remove('expanded');
+        icon.classList.remove('fa-compress-alt');
+        icon.classList.add('fa-expand-alt');
+    } else {
+        section.classList.add('expanded');
+        icon.classList.remove('fa-expand-alt');
+        icon.classList.add('fa-compress-alt');
+    }
+}
+
+// تصدير الدوال للنطاق العام للاستخدام المباشر عبر HTML
+Object.assign(window, {
+    debouncedFilterTable,
+    openAddCustomerModal,
+    closeAddCustomerModal,
+    saveNewCustomer,
+    openNoteModal,
+    closeNote,
+    saveNote,
+    toggleDropdown,
+    toggleAllCheckboxes,
+    handleBulkAction,
+    toggleLogExpansion
+});
+
+document.addEventListener('click', () => { 
+    document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show')); 
+});
+
+document.addEventListener('DOMContentLoaded', loadSavedData);
