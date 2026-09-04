@@ -160,16 +160,32 @@ function saveRowLocally(rowId) {
 }
 
 function listenToOpportunities() {
+    const tbody = document.getElementById('tableBody');
+    if (!tbody) return;
+
+    // 1. العرض الفوري من الذاكرة المحلية قبل انتظار فايربيس (يمنع الشاشة البيضاء)
+    try {
+        const localCache = JSON.parse(localStorage.getItem(OPP_LOCAL_KEY) || '{}');
+        const localIds = Object.keys(localCache);
+        if (localIds.length > 0) {
+            tbody.innerHTML = '';
+            localIds.forEach(id => { renderRow(localCache[id], false); });
+            reorderRows();
+            updateStats();
+        } else {
+            // عرض مؤشر تحميل أنيق بدلاً من الشاشة البيضاء في حال لم يكن هناك كاش
+            tbody.innerHTML = '<tr><td colspan="14" style="text-align:center; padding:30px; font-weight:700; color:#94a3b8;"><i class="fas fa-spinner fa-spin"></i> جاري جلب البيانات من السحابة...</td></tr>';
+        }
+    } catch(e) { console.error("خطأ في قراءة التخزين المحلي:", e); }
+
     const oppsRef = collection(db, "opportunities");
     onSnapshot(oppsRef, (snapshot) => {
-        const tbody = document.getElementById('tableBody');
-        if (!tbody) return;
-
         let openSubTables = [];
         document.querySelectorAll('.sub-table-row').forEach(row => {
             if (row.style.display === 'table-row') openSubTables.push(row.id);
         });
 
+        // حفظ حالة المؤشر (Focus) حتى لا يزعج المستخدم إذا كان يكتب أثناء تحديث فايربيس
         let activeId = null;
         let activeClass = null;
         let activeTag = null;
@@ -190,6 +206,7 @@ function listenToOpportunities() {
             }
         }
 
+        // 2. تحديث الجدول ببيانات السحابة
         tbody.innerHTML = '';
         if (!snapshot.empty) {
             snapshot.forEach((docSnapshot) => {
@@ -199,13 +216,8 @@ function listenToOpportunities() {
                 saveRowLocally(data.id); 
             });
         } else {
-            try {
-                const localCache = JSON.parse(localStorage.getItem(OPP_LOCAL_KEY) || '{}');
-                const localIds = Object.keys(localCache);
-                if (localIds.length > 0) {
-                    localIds.forEach(id => { renderRow(localCache[id], false); });
-                }
-            } catch(e) { console.error("خطأ في قراءة التخزين المحلي:", e); }
+            // إظهار رسالة إذا كانت القاعدة فارغة فعلياً
+            tbody.innerHTML = '<tr><td colspan="14" style="text-align:center; padding:30px; font-weight:700; color:#ef4444;">لا توجد فرص بيعية مسجلة حالياً</td></tr>';
         }
         
         reorderRows();
