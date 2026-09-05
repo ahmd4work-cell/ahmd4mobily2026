@@ -300,4 +300,7 @@ tbody tr.main-row:nth-child(4n+1) { background-color: #fafafa; }
 .col-status { width: 7%; }
 .col-owner { width: 6%; }
 
-div:where(.swal2-container) { font-family: 'Cairo', sans-serif !important; }
+div:where(.swal2-container) { 
+    font-family: 'Cairo', sans-serif !important; 
+    z-index: 99999 !important; /* إضافة هذا السطر لحل مشكلة اختفاء التنبيه */
+}
