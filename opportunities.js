@@ -577,7 +577,15 @@ function openNote(el) {
     }
     
     const noteModal = document.getElementById('noteModal');
-    if (noteModal) noteModal.style.display = "flex";
+    if (noteModal) {
+        noteModal.style.display = "flex";
+        
+        // --- السطر الجديد المسؤول عن النزول التلقائي لأسفل الملاحظات ---
+        if (historyLog) {
+            historyLog.scrollTop = historyLog.scrollHeight;
+        }
+    }
+    
     const modalTextArea = document.getElementById('modalTextArea');
     if (modalTextArea) { modalTextArea.value = ""; modalTextArea.focus(); }
 }
