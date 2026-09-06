@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التذكيرات | ASGate</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="reminders.css">
+</head>
+<body style="margin: 0; padding: 0;">
+
+<div class="dashboard-container">    
+    <!-- شريط التنقل العلوي -->
+    <nav class="navbar">
+        <a href="index.html">الرئيسية</a>
+        <a href="visits.html">الزيارات</a>
+        <a href="opportunities.html">الفرص البيعية</a>
+        <a href="customers.html">العملاء</a>
+        <a href="sales.html">المبيعات</a>
+        <a href="reminders.html" class="active">التذكيرات</a>
+    </nav>
+
+    <div class="reminders-container">
+        <div class="reminders-grid" id="remindersGrid">
+            <!-- يتم توليد الـ 12 مذكرة برمجياً -->
+        </div>
+    </div>
+</div>
+
+<!-- التقويم المتحرك المخصص -->
+<div class="calendar-overlay" id="calendarOverlay">
+    <div class="custom-datepicker">
+        <!-- الشريط العلوي يحتوي على القوائم المنسدلة والأسهم -->
+        <div class="datepicker-header">
+            <div class="month-nav">
+                <i class="fas fa-chevron-left month-nav-btn" id="prevMonthBtn" title="الشهر السابق"></i>
+                <select id="calMonthSelect" class="datepicker-select"></select>
+                <i class="fas fa-chevron-right month-nav-btn" id="nextMonthBtn" title="الشهر التالي"></i>
+            </div>
+            <select id="calYearSelect" class="datepicker-select"></select>
+        </div>
+
+        <div class="weekdays-grid">
+            <span>Su</span>
+            <span>Mo</span>
+            <span>Tu</span>
+            <span>We</span>
+            <span>Th</span>
+            <span class="weekend-day">Fr</span>
+            <span class="weekend-day">Sa</span>
+        </div>
+
+        <div class="days-container">
+            <div class="days-grid" id="calDaysGrid">
+                <!-- أرقام الأيام تتولد برمجياً -->
+            </div>
+        </div>
+
+        <!-- الأزرار السفلية -->
+        <div class="datepicker-footer">
+            <button class="btn-cancel" id="calCancelBtn">إلغاء</button>
+            <div class="action-buttons">
+                <button class="btn-clear-date" id="calClearBtn">مسح</button>
+                <button class="btn-next" id="calNextBtn">تأكيد</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة تأكيد الحذف -->
+<div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-modal">
+        <h3 style="margin-top: 0; font-family: 'Cairo', sans-serif; color: #0f172a;">تأكيد الحذف</h3>
+        <p style="font-family: 'Cairo', sans-serif; font-size: 14px; color: #475569;">هل أنت متأكد أنك تريد حذف هذه المذكرة بالكامل؟</p>
+        <div class="confirm-actions">
+            <button class="btn-cancel-delete" id="cancelDeleteBtn">إلغاء</button>
+            <button class="btn-confirm-delete" id="confirmDeleteBtn">حذف</button>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="reminders.js"></script>
+</body>
+</html>
