@@ -63,7 +63,7 @@ html, body {
 .table-wrapper { background: white; border-radius: 10px; overflow-y: auto; border: 1px solid var(--border-soft); flex: 1; min-height: 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,.05); position: relative; }
 table { width: 100%; border-collapse: collapse; table-layout: fixed; font-family: 'Cairo', sans-serif; }
 
-/* تم تعديل الخط ليكون 10 عريض وكايرو */
+/* تم تعديل الخط ليكون 11 عريض وكايرو */
 th { background: var(--header-shiny-purple); color: white; padding: 0 8px; font-size: 10px; font-family: 'Cairo', sans-serif; font-weight: bold; text-align: center; border-bottom: 3px solid #2e1065; position: sticky; top: 0; z-index: 50; height: 42px; letter-spacing: .3px; }
 td { border-bottom: 1px solid #f1f5f9; text-align: center; height: 38px; max-height: 38px; font-size: 10px; font-family: 'Cairo', sans-serif; font-weight: 600; overflow: visible; white-space: nowrap; position: relative; transition: background-color .2s; }
 tbody tr.main-row:hover td { background-color: #f1f5f9; }
@@ -176,19 +176,19 @@ tbody tr.main-row:nth-child(4n+1) { background-color: #fafafa; }
 .delete-note-btn { color: #ef4444; cursor: pointer; font-size: 12px; padding: 5px; transition: 0.2s; border-radius: 4px; }
 .delete-note-btn:hover { background-color: #fee2e2; transform: scale(1.1); }
 
-/* أبعاد الأعمدة المعدلة حسب المطلوب لتكون 10 عريض لبعض الأعمدة */
+/* أبعاد الأعمدة المعدلة حسب المطلوب لتكون 11 عريض لبعض الأعمدة */
 .col-select { width: 4%; }
-.col-company { width: 10%; } /* تم التعديل لتكون 10% */
+.col-company { width: 10%; } /* تم التعديل لتكون 11% */
 .col-address { width: 9%; }
 .col-manager { width: 8%; }
 .col-mobile { width: 9%; }
 .col-email { width: 8%; }
-.col-record { width: 10%; } /* تم التعديل لتكون 10% */
+.col-record { width: 10%; } /* تم التعديل لتكون 11% */
 .col-date { width: 7%; }
 .col-service { width: 8%; }
 .col-val { width: 6%; }
 .col-notes { width: 9%; }
-.col-status { width: 10%; } /* تم التعديل لتكون 10% */
+.col-status { width: 10%; } /* تم التعديل لتكون 11% */
 .col-edit { width: 7%; }
 .col-owner { width: 5%; }
 
