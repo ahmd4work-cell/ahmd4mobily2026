@@ -127,7 +127,7 @@ tbody tr.main-row:nth-child(4n+1) { background-color: #fafafa; }
     gap: 8px; 
     padding: 6px 0; 
     border-bottom: 1px dashed var(--border-soft); 
-    font-size: 10px;
+    font-size: 10.5px;
 }
 .log-entry:last-child { border-bottom: none; }
 
@@ -135,7 +135,7 @@ tbody tr.main-row:nth-child(4n+1) { background-color: #fafafa; }
     display: inline-flex; 
     align-items: center; 
     gap: 14px; 
-    font-size: 10px; 
+    font-size: 11px; 
     color: #475569; 
     font-weight: 600; 
     white-space: nowrap; 
