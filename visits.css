@@ -63,10 +63,10 @@ html, body {
 .table-wrapper { background: white; border-radius: 10px; overflow-y: auto; border: 1px solid var(--border-soft); flex: 1; min-height: 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,.05); position: relative; }
 table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 
-/* تحديث حجم ووزن خط خلايا رأس الجدول */
+/* رأس الجدول: حجم 10 بوزن 800 */
 th { background: var(--header-shiny-purple); color: white; padding: 0 8px; font-size: 10px; font-weight: 800; text-align: center; border-bottom: 3px solid #2e1065; position: sticky; top: 0; z-index: 50; height: 42px; letter-spacing: .3px; }
 
-/* تحديث حجم ووزن خط الخلايا العادية */
+/* خلايا الجدول: حجم 10 بوزن 600 */
 td { border-bottom: 1px solid #f1f5f9; text-align: center; height: 38px; max-height: 38px; font-size: 10px; font-weight: 600; overflow: visible; white-space: nowrap; position: relative; transition: background-color .2s; }
 tbody tr.main-row:hover td { background-color: #f1f5f9; }
 
@@ -109,12 +109,12 @@ tbody tr.main-row:hover td { background-color: #f1f5f9; }
 .toggle-arrow:hover { color: var(--accent-blue); background: #e0f2fe; }
 .arrow-open { transform: rotate(90deg); color: var(--accent-blue); background: #e0f2fe; }
 
-/* مدخلات الخلايا وتحديث الحجم إلى 10 */
+/* مدخلات الخلايا بحجم 10 */
 .excel-input { width: 96%; border: 1px solid transparent; border-radius: 4px; text-align: center; font-family: 'Cairo'; outline: none; background: transparent; font-size: 10px; color: inherit; font-weight: inherit; height: 90%; margin: 1.5% 2%; overflow: hidden; text-overflow: ellipsis; transition: all .2s; }
 .excel-input:focus { border-color: var(--accent-blue); background: #fff; box-shadow: 0 0 0 2px rgba(59,130,246,.1); }
 .readonly-input:focus { border-color: transparent; background: transparent; box-shadow: none; }
 
-/* تمييز الخط في عمود الشركة ورقم التواصل والسجل ليصبح الحجم 10 والوزن 800 */
+/* تمييز خط عمود (الشركة، رقم التواصل، السجل التجاري) بحجم 10 ووزن 800 */
 tbody tr td:nth-child(2),
 tbody tr td:nth-child(5),
 tbody tr td:nth-child(7),
@@ -188,9 +188,7 @@ tbody tr td:nth-child(7) .excel-input {
     border: none;
 }
 
-/* -----------------------------------------
-   تنسيقات الملاحظات (المحدثة) 
------------------------------------------- */
+/* تنسيقات الملاحظات */
 .notes-preview {
     width: 95%;
     height: 26px;
@@ -334,7 +332,7 @@ tbody tr td:nth-child(7) .excel-input {
     transform: scale(1.1);
 }
 
-/* أبعاد الأعمدة الخاصة بصفحة الزيارات */
+/* أبعاد الأعمدة الخاص بصفحة الزيارات */
 .col-select { width: 4%; }
 .col-company { width: 12%; }
 .col-address { width: 9%; }
