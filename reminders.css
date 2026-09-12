@@ -52,7 +52,7 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     /* زيادة وتثبيت ارتفاع المربعات لتكون أطول قليلاً */
-    grid-template-rows: repeat(3, 240px); 
+    grid-template-rows: repeat(3, 150px); 
     gap: 20px;
 }
 
