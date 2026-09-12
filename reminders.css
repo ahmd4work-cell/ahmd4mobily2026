@@ -50,7 +50,7 @@
 .reminders-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(3, 200px);
+    grid-template-rows: repeat(3, 180px);
     gap: 20px;
 }
 
