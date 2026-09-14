@@ -127,8 +127,47 @@ function applySelectedDate(dateStr) {
 }
 window.applySelectedDate = applySelectedDate;
 
+// إضافة الدالة المفقودة هنا لتفعيل أزرار التقويم
+function setupCalendarEvents() {
+    const overlay = document.getElementById('calendarOverlay');
+    if (!overlay) return;
+
+    document.getElementById('btnPrevMonth')?.addEventListener('click', () => changeMonth(-1));
+    document.getElementById('btnNextMonth')?.addEventListener('click', () => changeMonth(1));
+    
+    document.getElementById('calMonthSelect')?.addEventListener('change', (e) => {
+        viewMonth = parseInt(e.target.value, 10);
+        renderCalendarDays();
+    });
+    
+    document.getElementById('calYearSelect')?.addEventListener('change', (e) => {
+        viewYear = parseInt(e.target.value, 10);
+        renderCalendarDays();
+    });
+
+    document.getElementById('btnCancelCal')?.addEventListener('click', closeCalendar);
+    
+    document.getElementById('btnClearDate')?.addEventListener('click', () => {
+        applySelectedDate("");
+    });
+    
+    document.getElementById('btnApplyDate')?.addEventListener('click', () => {
+        if (tempSelectedDateStr) {
+            applySelectedDate(tempSelectedDateStr);
+        } else {
+            closeCalendar();
+        }
+    });
+
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            closeCalendar();
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     setupCalendarEvents();
-    loadLogsData();
-    listenToOpportunities();
+    if (typeof loadLogsData === 'function') loadLogsData();
+    if (typeof listenToOpportunities === 'function') listenToOpportunities();
 });
