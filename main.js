@@ -470,7 +470,7 @@ function initCharts() {
     q3Chart = new Chart(document.getElementById('q3Chart'), { type: 'pie', data: JSON.parse(JSON.stringify(qInitialData)), options: quarterOptions });
     q4Chart = new Chart(document.getElementById('q4Chart'), { type: 'pie', data: JSON.parse(JSON.stringify(qInitialData)), options: quarterOptions });
 
-    // === تم تحديث خصائص Tooltip ليصبح المربع أوضح ===
+// === تم تحديث خصائص Tooltip ليصبح المربع معتماً بالكامل ===
     const distChartOptions = {
         cutout: '72%',
         responsive: true,
@@ -478,7 +478,7 @@ function initCharts() {
         plugins: {
             legend: { display: false },
             tooltip: {
-                backgroundColor: 'rgba(15, 23, 42, 0.95)', // لون داكن وأوضح (Slate-900)
+                backgroundColor: 'rgba(15, 23, 42, 1)', // تم تغيير القيمة إلى 1 لإلغاء الشفافية تماماً
                 titleFont: { family: 'Cairo', size: 14, weight: 'bold' },
                 bodyFont: { family: 'Cairo', size: 13, weight: '600' },
                 bodySpacing: 6,
