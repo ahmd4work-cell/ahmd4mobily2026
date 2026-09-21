@@ -1,5 +1,5 @@
 // ==========================================
-// visits_2.js - إدارة الزيارات سحابياً ومحلياً (النسخة المحسنة)
+// visits.js - إدارة الزيارات سحابياً ومحلياً (النسخة المحسنة)
 // ==========================================
 import { db } from './firebase-config.js';
 import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
